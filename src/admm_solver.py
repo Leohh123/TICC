@@ -121,7 +121,7 @@ class ADMMSolver:
                     break
                 new_rho = self.rho
                 if self.rho_update_func:
-                    new_rho = rho_update_func(self.rho, res_pri, e_pri, res_dual, e_dual)
+                    new_rho = self.rho_update_func(self.rho, res_pri, e_pri, res_dual, e_dual)
                 scale = self.rho / new_rho
                 rho = new_rho
                 self.u = scale*self.u
