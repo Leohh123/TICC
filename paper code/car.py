@@ -27,7 +27,7 @@ prefix_string = "data_lambda=" + str(lambda_parameter)+"beta = "+str(beta) + "cl
 
 ##Enter the location of data file
 data_pre = pd.read_csv('data.tsv', sep ='\t',low_memory = False)
-print "\n\ncompleted getting the data"
+print("\n\ncompleted getting the data")
 ###########################################################
 
 ##set other parameter values
@@ -38,11 +38,11 @@ num_stacked = num_blocks - 1
 str_NULL = prefix_string
 switch_penalty = beta
 lam_sparse = lambda_parameter
-print "\n\n\nthe set parameters are:"
-print "THRESHOLD IS:", threshold
-print "lam_sparse", lam_sparse
-print "switch_penalty", switch_penalty
-print "num_cluster", maxClusters-1
+print("\n\n\nthe set parameters are:")
+print("THRESHOLD IS:", threshold)
+print("lam_sparse", lam_sparse)
+print("switch_penalty", switch_penalty)
+print("num_cluster", maxClusters-1)
 
 
 ######### Get Date into proper format
@@ -85,12 +85,12 @@ def updateClusters(LLE_node_vals,switch_penalty = 1):
 	future_cost_vals = np.zeros(LLE_node_vals.shape)
 
 	##compute future costs
-	for i in xrange(T-2,-1,-1):
+	for i in range(T-2,-1,-1):
 		j = i+1
 		indicator = np.zeros(num_clusters)
 		future_costs = future_cost_vals[j,:]
 		lle_vals = LLE_node_vals[j,:]
-		for cluster in xrange(num_clusters):
+		for cluster in range(num_clusters):
 			total_vals = future_costs + lle_vals + switch_penalty
 			total_vals[cluster] -= switch_penalty
 			future_cost_vals[i,cluster] = np.min(total_vals)
@@ -103,7 +103,7 @@ def updateClusters(LLE_node_vals,switch_penalty = 1):
 	path[0] = curr_location
 
 	##compute the path
-	for i in xrange(T-1):
+	for i in range(T-1):
 		j = i+1
 		future_costs = future_cost_vals[j,:]
 		lle_vals = LLE_node_vals[j,:]
@@ -121,10 +121,10 @@ def find_matching(confusion_matrix):
 	"""
 	_,n = confusion_matrix.shape
 	path = []
-	for i in xrange(n):
+	for i in range(n):
 		max_val = -1e10
 		max_ind = -1
-		for j in xrange(n):
+		for j in range(n):
 			if j in path:
 				pass
 			else:
@@ -140,7 +140,7 @@ def computeF1Score(num_cluster,matching_algo,actual_clusters,threshold_algo,save
 	computes the F1 scores and returns a list of values
 	"""
 	F1_score = np.zeros(num_cluster)
-	for cluster in xrange(num_cluster):
+	for cluster in range(num_cluster):
 		matched_cluster = matching_algo[cluster]
 		true_matrix = actual_clusters[cluster]
 		estimated_matrix = threshold_algo[matched_cluster]
@@ -148,8 +148,8 @@ def computeF1Score(num_cluster,matching_algo,actual_clusters,threshold_algo,save
 		TN = 0
 		FP = 0
 		FN = 0
-		for i in xrange(num_stacked*n):
-			for j in xrange(num_stacked*n):
+		for i in range(num_stacked*n):
+			for j in range(num_stacked*n):
 				if estimated_matrix[i,j] == 1 and true_matrix[i,j] != 0:
 					TP += 1.0
 				elif estimated_matrix[i,j] == 0 and true_matrix[i,j] == 0:
@@ -169,7 +169,7 @@ def compute_confusion_matrix(num_clusters,clustered_points_algo, sorted_indices_
 	computes a confusion matrix and returns it
 	"""
 	true_confusion_matrix = np.zeros([num_clusters,num_clusters])
-	for point in xrange(len(clustered_points_algo)):
+	for point in range(len(clustered_points_algo)):
 		cluster = clustered_points_algo[point]
 		if sorted_indices_algo[point] < seg_len:
 			true_confusion_matrix[0,cluster] += 1
@@ -189,16 +189,16 @@ def compute_BIC_score(actual_clusters, emprical_cov, LLE_all_points_clusters,clu
 	point_lle = 0
 	mod_lle = 0
 	##Compute the total LLE
-	for idx in xrange(len(clustered_points)):
+	for idx in range(len(clustered_points)):
 		point = sorted_training_idx[idx]
 		if point < T:
 			point_lle -= LLE_all_points_clusters[point,clustered_points[point]]
-	for cluster in xrange(num_clusters):
+	for cluster in range(num_clusters):
 		mod_lle += np.log(np.linalg.det(actual_clusters[cluster])) - np.trace(np.dot(empirical_cov[cluster], actual_clusters[cluster]))
 	tot_lle = mod_lle/num_clusters#point_lle + mod_lle
 	threshold = 2e-5
 	nonzero_params = 0
-	for cluster in xrange(num_clusters):
+	for cluster in range(num_clusters):
 		nonzero_params += np.sum(np.sum(np.abs(actual_clusters[cluster] > threshold)))
 	BIC = nonzero_params*np.log(T) - 2*tot_lle
 
@@ -233,8 +233,8 @@ log_det_values = {}
 computed_covariance = {}
 cluster_mean_info = {}
 cluster_mean_stacked_info = {}
-for iters in xrange(maxIters):
-	print "\n\n\nITERATION ###", iters
+for iters in range(maxIters):
+	print("\n\n\nITERATION ###", iters)
 	num_clusters = maxClusters - 1
 
 	if iters == 0:
@@ -247,7 +247,7 @@ for iters in xrange(maxIters):
 		num_test_points = m - len(training_idx)
 		test_idx = []
 		##compute the test indices
-		for point in xrange(m):
+		for point in range(m):
 			if point not in sorted_training_idx:
 				test_idx.append(point)
 		sorted_test_idx = sorted(test_idx)
@@ -255,9 +255,9 @@ for iters in xrange(maxIters):
 		##Stack the complete data
 		complete_Data = np.zeros([m - num_stacked + 1, num_stacked*n])
 		len_data = m
-		for i in xrange(m - num_stacked + 1):
+		for i in range(m - num_stacked + 1):
 			idx = i
-			for k in xrange(num_stacked):
+			for k in range(num_stacked):
 				if i+k < len_data:
 					idx_k = i + k
 					complete_Data[i][k*n:(k+1)*n] =  Data[idx_k][0:n]
@@ -265,9 +265,9 @@ for iters in xrange(maxIters):
 		##Stack the training data
 		complete_D_train = np.zeros([len(training_idx) - num_stacked + 1, num_stacked*n])
 		len_training = len(training_idx)
-		for i in xrange(len(sorted_training_idx) - num_stacked + 1):
+		for i in range(len(sorted_training_idx) - num_stacked + 1):
 			idx = sorted_training_idx[i]
-			for k in xrange(num_stacked):
+			for k in range(num_stacked):
 				if i+k < len_training:
 					idx_k = sorted_training_idx[i+k]
 					complete_D_train[i][k*n:(k+1)*n] =  Data[idx_k][0:n]
@@ -275,9 +275,9 @@ for iters in xrange(maxIters):
 		complete_D_test = np.zeros([len(test_idx) - num_stacked + 1, num_stacked*n])
 		len_test = len(test_idx)
 
-		for i in xrange(len(sorted_test_idx) - num_stacked + 1):
+		for i in range(len(sorted_test_idx) - num_stacked + 1):
 			idx = sorted_test_idx[i]
-			for k in xrange(num_stacked):
+			for k in range(num_stacked):
 				if i+k < len_test:
 					idx_k = sorted_test_idx[i+k]
 					complete_D_test[i][k*n:(k+1)*n] =  Data[idx_k][0:n]
@@ -300,7 +300,7 @@ for iters in xrange(maxIters):
 		color_list_file = open(file_name,"w")
 		str0 = ""
 		counter = 0
-		for i in xrange(len(gmm_clustered_pts)):
+		for i in range(len(gmm_clustered_pts)):
 			if i % scaling_time == 0:
 				cluster = gmm_clustered_pts[i]
 				color_c = hexadecimal_color_list[cluster]
@@ -314,7 +314,7 @@ for iters in xrange(maxIters):
 		color_list_file.close()
 
 		##Output a location file
-		for i in xrange(m):
+		for i in range(m):
 			if i % scaling_time == 0:
 				location = (Data_pre[i,7],Data_pre[i,8])
 				str0 += "new GLatLng" + str(location)
@@ -350,7 +350,7 @@ for iters in xrange(maxIters):
 
 	##train_clusters holds the indices in complete_D_train 
 	##for each of the clusters
-	for cluster in xrange(num_clusters):
+	for cluster in range(num_clusters):
 		if len_train_clusters[cluster] != 0:
 			indices = train_clusters[cluster]
 			indices_test = test_clusters[cluster]
@@ -358,16 +358,16 @@ for iters in xrange(maxIters):
 
 
 			D_train = np.zeros([len_train_clusters[cluster],num_stacked*n])
-			for i in xrange(len_train_clusters[cluster]):
+			for i in range(len_train_clusters[cluster]):
 				point = indices[i]
 				D_train[i,:] = complete_D_train[point,:]
 
 			D_test = np.zeros([len_test_clusters[cluster], num_stacked*n])
-			for i in xrange(len_test_clusters[cluster]):
+			for i in range(len_test_clusters[cluster]):
 				point = indices_test[i]
 				D_test[i,:] = complete_D_test[point,:]
 
-			print "starting OPTIMIZATION for cluster#", cluster
+			print("starting OPTIMIZATION for cluster#", cluster)
 			##Fit a model - OPTIMIZATION	
 #			solver_model = sklearn.covariance.GraphLasso(alpha = lam_sparse)
 #			solver_model.fit(D_train)
@@ -376,8 +376,8 @@ for iters in xrange(maxIters):
 			size_blocks = n
 			probSize = num_stacked * size_blocks
 			lamb = np.zeros((probSize,probSize)) + lam_sparse
-			for block_i in xrange(num_stacked):
-				for block_j in xrange(num_stacked):
+			for block_i in range(num_stacked):
+				for block_j in range(num_stacked):
 					scale = np.abs(block_i - block_j)
 					lambda_block = np.zeros([size_blocks,size_blocks]) + scale*lam_sparse
 					lamb[block_i*size_blocks:(block_i+1)*size_blocks, (block_j*size_blocks):(block_j+1)*size_blocks] += lambda_block
@@ -415,14 +415,14 @@ for iters in xrange(maxIters):
 
 	##Computing the norms
 	if iters != 0:
-		for cluster in xrange(num_clusters):
+		for cluster in range(num_clusters):
 			cluster_norms[cluster] = (np.linalg.norm(old_computed_covariance[num_clusters,cluster]),cluster)
 		sorted_cluster_norms = sorted(cluster_norms,reverse = True)
 
 	##Add a point to the empty clusters 
 	##Assumption more non empty clusters than empty ones
 	counter = 0
-	for cluster in xrange(num_clusters):
+	for cluster in range(num_clusters):
 		if len_train_clusters[cluster] == 0:
 			##Add a point to the cluster
 			while len_train_clusters[sorted_cluster_norms[counter][1]] == 0:
@@ -448,7 +448,7 @@ for iters in xrange(maxIters):
 	##Caching stuff
 	inv_matrix_cluster ={}
 	log_det_cov_cluster = {}
-	for cluster in xrange(num_clusters):
+	for cluster in range(num_clusters):
 		cov_matrix = computed_covariance[num_clusters,cluster][0:(num_blocks-1)*n,0:(num_blocks-1)*n]
 		log_det_cov = np.log(np.linalg.det(cov_matrix))# log(det(sigma2|1))
 		inv_matrix_cluster[cluster] = np.linalg.inv(cov_matrix)
@@ -458,12 +458,12 @@ for iters in xrange(maxIters):
 
 	##Code -----------------------SMOOTHENING
 	##For each point compute the LLE 
-	print "beginning with the smoothening ALGORITHM"
+	print("beginning with the smoothening ALGORITHM")
 	LLE_all_points_clusters = np.zeros([len(clustered_points),num_clusters])
-	for point in xrange(len(clustered_points)):
+	for point in range(len(clustered_points)):
 		# print "Point #", point
 		if point + num_stacked-1 < complete_D_train.shape[0]:
-			for cluster in xrange(num_clusters):
+			for cluster in range(num_clusters):
 				# print "\nCLuster#", cluster
 				cluster_mean = cluster_mean_info[num_clusters,cluster] 
 				cluster_mean_stacked = cluster_mean_stacked_info[num_clusters,cluster] 
@@ -478,7 +478,7 @@ for iters in xrange(maxIters):
 	##Update cluster points - using NEW smoothening
 	clustered_points = updateClusters(LLE_all_points_clusters,switch_penalty = switch_penalty)
 
-print "\n\ncompleted running the TICC algorithm. Saving results"
+print("\n\ncompleted running the TICC algorithm. Saving results")
 
 ##Write the location and the appropriate color file
 ##Output a color file
@@ -486,7 +486,7 @@ file_name = str_NULL + "color_file_EM.txt"
 color_list_file = open(file_name,"w")
 str0 = ""
 counter = 0
-for i in xrange(len(gmm_clustered_pts)):
+for i in range(len(gmm_clustered_pts)):
 	if i % scaling_time == 0 and (i <40000 or i<5000):
 		cluster = clustered_points[i]
 		color_c = hexadecimal_color_list[int(cluster)]
@@ -502,7 +502,7 @@ color_list_file.close()
 ##Output a location file
 str0 = ""
 counter = 0
-for i in xrange(len(gmm_clustered_pts)):
+for i in range(len(gmm_clustered_pts)):
 	if i % scaling_time == 0 and (i<40000 or i <5000) :
 		idx = sorted_training_idx[i]
 		location = (Data_pre[idx,7],Data_pre[idx,8])
@@ -519,11 +519,11 @@ location_file.close()
 
 ##With the inverses do some sort of thresholding
 cluster = 0
-for cluster in xrange(num_clusters):
+for cluster in range(num_clusters):
 	out = np.zeros(train_cluster_inverse[0].shape, dtype = np.int)
 	A = train_cluster_inverse[cluster]
-	for i in xrange(out.shape[0]):
-		for j in xrange(out.shape[1]):
+	for i in range(out.shape[0]):
+		for j in range(out.shape[1]):
 			if np.abs(A[i,j]) > threshold:
 				out[i,j] = 1
 	file_name = str_NULL+ "Cross time graphs"+str(cluster)+"maxClusters="+str(maxClusters-1)+"lam_sparse="+str(lam_sparse)+".jpg"
@@ -536,10 +536,10 @@ for cluster in xrange(num_clusters):
 plt.close("all")
 cluster_means_raw = {}
 str0 = ""
-for cluster in xrange(num_clusters):
+for cluster in range(num_clusters):
 	counter = 0
 	cluster_mean_raw = np.zeros(n)
-	for i in xrange(len(clustered_points)):
+	for i in range(len(clustered_points)):
 		if clustered_points[i] == cluster:
 			counter += 1
 			cluster_mean_raw += np.array(Data_pre[i,:7])
@@ -549,9 +549,9 @@ means_file = open((str_NULL + "EM cluster means lam_sparse="+ str(lam_sparse)+"s
 # means_file.write(str0)
 means_file.close()
 
-print "\n\n\nBIC SCORE"
+print("\n\n\nBIC SCORE")
 bic = compute_BIC_score(train_cluster_inverse, empirical_cov, LLE_all_points_clusters, clustered_points, sorted_training_idx)
-print "BIC:", bic
+print("BIC:", bic)
 
 
 

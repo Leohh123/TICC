@@ -37,8 +37,8 @@ num_stacked = num_blocks - 1
 hexadecimal_color_list = ["cc0000","0000ff","003300","33ff00","00ffcc","ffff00","ff9900","ff00ff","cccc66","666666","ffccff","660000","00ff00","ffffff","3399ff","006666","330000","ff0000","cc99ff","b0800f","3bd9eb","ef3e1b"]
 
 
-print "num_cluster", maxClusters - 1
-print "num_blocks:", num_blocks
+print("num_cluster", maxClusters - 1)
+print("num_blocks:", num_blocks)
 
 
 Data = 1000*np.random.rand(1e7,50)
@@ -48,8 +48,8 @@ UNNORMALIZED_Data = Data*1000
 len_D_total = m
 size_blocks = n
 # def optimize(emp_cov = No)
-print "Length of data:", m
-print "completed getting the data"
+print("Length of data:", m)
+print("completed getting the data")
 
 def upper2Full(a, eps = 0):
     ind = (a<eps)&(a>-eps)
@@ -74,12 +74,12 @@ def updateClusters(LLE_node_vals,switch_penalty = 1):
 	future_cost_vals = np.zeros(LLE_node_vals.shape)
 
 	##compute future costs
-	for i in xrange(T-2,-1,-1):
+	for i in range(T-2,-1,-1):
 		j = i+1
 		indicator = np.zeros(num_clusters)
 		future_costs = future_cost_vals[j,:]
 		lle_vals = LLE_node_vals[j,:]
-		for cluster in xrange(num_clusters):
+		for cluster in range(num_clusters):
 			total_vals = future_costs + lle_vals + switch_penalty
 			total_vals[cluster] -= switch_penalty
 			future_cost_vals[i,cluster] = np.min(total_vals)
@@ -92,7 +92,7 @@ def updateClusters(LLE_node_vals,switch_penalty = 1):
 	path[0] = curr_location
 	DP_start2 = time.time()
 	##compute the path
-	for i in xrange(T-1):
+	for i in range(T-1):
 		j = i+1
 		future_costs = future_cost_vals[j,:]
 		lle_vals = LLE_node_vals[j,:]
@@ -110,10 +110,10 @@ def find_matching(confusion_matrix):
 	"""
 	_,n = confusion_matrix.shape
 	path = []
-	for i in xrange(n):
+	for i in range(n):
 		max_val = -1e10
 		max_ind = -1
-		for j in xrange(n):
+		for j in range(n):
 			if j in path:
 				pass
 			else:
@@ -129,7 +129,7 @@ def computeF1Score_delete(num_cluster,matching_algo,actual_clusters,threshold_al
 	computes the F1 scores and returns a list of values
 	"""
 	F1_score = np.zeros(num_cluster)
-	for cluster in xrange(num_cluster):
+	for cluster in range(num_cluster):
 		matched_cluster = matching_algo[cluster]
 		true_matrix = actual_clusters[cluster]
 		estimated_matrix = threshold_algo[matched_cluster]
@@ -137,8 +137,8 @@ def computeF1Score_delete(num_cluster,matching_algo,actual_clusters,threshold_al
 		TN = 0
 		FP = 0
 		FN = 0
-		for i in xrange(num_stacked*n):
-			for j in xrange(num_stacked*n):
+		for i in range(num_stacked*n):
+			for j in range(num_stacked*n):
 				if estimated_matrix[i,j] == 1 and true_matrix[i,j] != 0:
 					TP += 1.0
 				elif estimated_matrix[i,j] == 0 and true_matrix[i,j] == 0:
@@ -148,8 +148,8 @@ def computeF1Score_delete(num_cluster,matching_algo,actual_clusters,threshold_al
 				else:
 					FN += 1.0
 		precision = (TP)/(TP + FP)
-		print "cluster #", cluster
-		print "TP,TN,FP,FN---------->", (TP,TN,FP,FN)
+		print("cluster #", cluster)
+		print("TP,TN,FP,FN---------->", (TP,TN,FP,FN))
 		recall = TP/(TP + FN)
 		f1 = (2*precision*recall)/(precision + recall)
 		F1_score[cluster] = f1
@@ -161,7 +161,7 @@ def compute_confusion_matrix(num_clusters,clustered_points_algo, sorted_indices_
 	"""
 	seg_len = 50
 	true_confusion_matrix = np.zeros([num_clusters,num_clusters])
-	for point in xrange(len(clustered_points_algo)):
+	for point in range(len(clustered_points_algo)):
 		cluster = clustered_points_algo[point]
 
 		#CASE E : ABCABC
@@ -178,21 +178,21 @@ def computeF1_macro(confusion_matrix,matching, num_clusters):
 	"""
 	##Permute the matrix columns
 	permuted_confusion_matrix = np.zeros([num_clusters,num_clusters])
-	for cluster in xrange(num_clusters):
+	for cluster in range(num_clusters):
 		matched_cluster = matching[cluster]
- 		permuted_confusion_matrix[:,cluster] = confusion_matrix[:,matched_cluster]
+		permuted_confusion_matrix[:,cluster] = confusion_matrix[:,matched_cluster]
  	##Compute the F1 score for every cluster
- 	F1_score = 0
- 	for cluster in xrange(num_clusters):
- 		TP = permuted_confusion_matrix[cluster,cluster]
- 		FP = np.sum(permuted_confusion_matrix[:,cluster]) - TP
- 		FN = np.sum(permuted_confusion_matrix[cluster,:]) - TP
- 		precision = TP/(TP + FP)
- 		recall = TP/(TP + FN)
- 		f1 = stats.hmean([precision,recall])
- 		F1_score += f1
- 	F1_score /= num_clusters
- 	return F1_score
+	F1_score = 0
+	for cluster in range(num_clusters):
+		TP = permuted_confusion_matrix[cluster,cluster]
+		FP = np.sum(permuted_confusion_matrix[:,cluster]) - TP
+		FN = np.sum(permuted_confusion_matrix[cluster,:]) - TP
+		precision = TP/(TP + FP)
+		recall = TP/(TP + FN)
+		f1 = stats.hmean([precision,recall])
+		F1_score += f1
+	F1_score /= num_clusters
+	return F1_score
 
 ############
 ##The basic folder to be created
@@ -224,8 +224,8 @@ computed_covariance = {}
 cluster_mean_info = {}
 cluster_mean_stacked_info = {}
 old_clustered_points = np.zeros(10)
-for iters in xrange(maxIters):
-	print "\n\n\nITERATION ###", iters
+for iters in range(maxIters):
+	print("\n\n\nITERATION ###", iters)
 	iter_start =  time.time()
 	num_clusters = maxClusters - 1
 
@@ -250,13 +250,13 @@ for iters in xrange(maxIters):
 		##compute the test indices
 
 		##Stack the complete data
-		print "stacking training data"
+		print("stacking training data")
 		time_stack_start = time.time()
 		complete_Data = np.zeros([m - num_stacked + 1, num_stacked*n])
 		len_data = m
-		for i in xrange(m - num_stacked + 1):
+		for i in range(m - num_stacked + 1):
 			idx = i
-			for k in xrange(num_stacked):
+			for k in range(num_stacked):
 				if i+k < len_data:
 					idx_k = i + k
 					complete_Data[i][k*n:(k+1)*n] =  Data[idx_k][0:n]
@@ -264,18 +264,18 @@ for iters in xrange(maxIters):
 		##Stack the training data
 		complete_D_train = np.zeros([len(training_idx), num_stacked*n])
 		len_training = len(training_idx)
-		for i in xrange(len(sorted_training_idx)):
+		for i in range(len(sorted_training_idx)):
 			idx = sorted_training_idx[i]
-			for k in xrange(num_stacked):
+			for k in range(num_stacked):
 				if i+k < len_training:
 					idx_k = sorted_training_idx[i+k]
 					complete_D_train[i][k*n:(k+1)*n] =  Data[idx_k][0:n]
-		print "completed stacking data"
+		print("completed stacking data")
 		time_stack_end = time.time()
-		print "It took :", time_stack_end - time_stack_start, "to stack the data"
+		print("It took :", time_stack_end - time_stack_start, "to stack the data")
 
 		actual_start = time.time()
-		print "starting to count time from here"
+		print("starting to count time from here")
 		#####INITIALIZATION!!!
 		gmm_start = time.time()
 		gmm = mixture.GaussianMixture(n_components=num_clusters, covariance_type="full")
@@ -283,17 +283,17 @@ for iters in xrange(maxIters):
 		gmm_clustered_pts = clustered_points + 0
 
 		gmm_end = time.time()
-		print "intialization completed"
-		print "gmm took:", gmm_end - gmm_start
+		print("intialization completed")
+		print("gmm took:", gmm_end - gmm_start)
 
 		##USE K-means
-		print "running K means"
+		print("running K means")
 		kmeans_start = time.time()
 
 		clustered_points_kmeans = np.random.choice(num_clusters, size = complete_D_train.shape[0], replace = True)#kmeans.labels_
 		kmeans_clustered_pts = np.random.choice(num_clusters, size = complete_D_train.shape[0], replace = True)#kmeans.labels_
 		kmeans_end = time.time()
-		print "k means took:", kmeans_end - kmeans_start
+		print("k means took:", kmeans_end - kmeans_start)
 	
 	##Get the train and test points
 	train_clusters = collections.defaultdict(list)
@@ -312,22 +312,22 @@ for iters in xrange(maxIters):
 
 	##train_clusters holds the indices in complete_D_train 
 	##for each of the clusters
-	for cluster in xrange(num_clusters):
+	for cluster in range(num_clusters):
 		if len_train_clusters[cluster] != 0:
 			indices = train_clusters[cluster]
 
-			print "\n\n\nstarting with cluster:", cluster
+			print("\n\n\nstarting with cluster:", cluster)
 			cluster_start = time.time()
 			S = np.cov(np.transpose(complete_D_train[indices,:]))
 			S_mean = np.mean(complete_D_train[indices,:], axis = 0)
-			print "it took about", time.time() - cluster_start,"to get all the training data"
+			print("it took about", time.time() - cluster_start,"to get all the training data")
 			size_blocks = n
 			probSize = num_stacked * size_blocks
 			lamb = np.zeros((probSize,probSize)) + lam_sparse
 			cov_start = time.time()
 
 			#OPTIMIZATION CODE
-			print "starting the OPTIMIZATION"
+			print("starting the OPTIMIZATION")
 			opt_start = time.time()
 			gvx = TGraphVX()
 			theta = semidefinite(probSize,name='theta')
@@ -339,7 +339,7 @@ for iters in xrange(maxIters):
 			gvx.Solve(Verbose=False, MaxIters=1000, Rho = 1, EpsAbs = 1e-6, EpsRel = 1e-6)
 
 			opt_end = time.time() 
-			print "SOLVER took:", opt_end - opt_start
+			print("SOLVER took:", opt_end - opt_start)
 
 			#THIS IS THE SOLUTION
 			val = gvx.GetNodeValue(0,'theta')
@@ -361,16 +361,16 @@ for iters in xrange(maxIters):
 
 	##Computing the norms
 	if iters != 0:
-		for cluster in xrange(num_clusters):
+		for cluster in range(num_clusters):
 			cluster_norms[cluster] = (np.linalg.norm(old_computed_covariance[num_clusters,cluster]),cluster)
 		sorted_cluster_norms = sorted(cluster_norms,reverse = True)
 
 	##Add a point to the empty clusters 
 	##Assumption more non empty clusters than empty ones
 	counter = 0
-	for cluster in xrange(num_clusters):
+	for cluster in range(num_clusters):
 		if len_train_clusters[cluster] == 0:
-			print "doing robustness stuff one cluster has zero points"
+			print("doing robustness stuff one cluster has zero points")
 			robust_start = time.time()
 			##Add a point to the cluster
 			while len_train_clusters[sorted_cluster_norms[counter][1]] == 0:
@@ -388,31 +388,31 @@ for iters in xrange(maxIters):
 					cluster_mean_stacked_info[num_clusters,cluster] = complete_D_train[point_num,:]
 					cluster_mean_info[num_clusters,cluster] = complete_D_train[point,:][(num_stacked-1)*n:num_stacked*n]
 					break_flag = True
-			print "done adding stuff"
+			print("done adding stuff")
 			counter += 1
-			print "it took:",  time.time() - robust_start
+			print("it took:",  time.time() - robust_start)
 
 	old_train_clusters = train_clusters
 	old_computed_covariance = computed_covariance
-	print "\n\n\n\n"
+	print("\n\n\n\n")
 	cache_start = time.time()
 	inv_matrix_cluster ={}
 	log_det_cov_cluster = {}
-	for cluster in xrange(num_clusters):
+	for cluster in range(num_clusters):
 		cov_matrix = computed_covariance[num_clusters,cluster][0:(num_blocks-1)*n,0:(num_blocks-1)*n]
 		log_det_cov = np.log(np.linalg.det(cov_matrix))# log(det(sigma2|1))
 		inv_matrix_cluster[cluster] = np.linalg.inv(cov_matrix)
 		log_det_cov_cluster[cluster] = log_det_cov
  	##Code -----------------------SMOOTHENING
 	##For each point compute the LLE 
-	print "\n\n"
+	print("\n\n")
 	LLE_start =  time.time()
 
 	LLE_all_points_clusters = np.zeros([len(clustered_points),num_clusters])
-	for point in xrange(len(clustered_points)):
+	for point in range(len(clustered_points)):
 		# print "Point #", point
 		if point + num_stacked-1 < complete_D_train.shape[0]:
-			for cluster in xrange(num_clusters):
+			for cluster in range(num_clusters):
 				# print "\nCLuster#", cluster
 				cluster_mean = cluster_mean_info[num_clusters,cluster] 
 				cluster_mean_stacked = cluster_mean_stacked_info[num_clusters,cluster] 
@@ -426,7 +426,7 @@ for iters in xrange(maxIters):
 	##Update cluster points - using NEW smoothening
 	DP_start = time.time()
 	clustered_points = updateClusters(LLE_all_points_clusters,switch_penalty = switch_penalty)
-	print "Total time for the DYNAMIC PROGRAMMING ALGORITHM:", time.time() - LLE_start
+	print("Total time for the DYNAMIC PROGRAMMING ALGORITHM:", time.time() - LLE_start)
 
 
 
@@ -435,11 +435,11 @@ for iters in xrange(maxIters):
 	f1_GMM_tr = 0#computeF1_macro(train_confusion_matrix_GMM,matching_GMM,num_clusters)
 	f1_kmeans_tr = 0#computeF1_macro(train_confusion_matrix_kmeans,matching_Kmeans,num_clusters)
 
-	print "\n\n\n"
-	print "\n\n\nThe TOTAL ITERATION TIME (from GMM Initialization):", time.time() - actual_start
-	print "\n\n"
+	print("\n\n\n")
+	print("\n\n\nThe TOTAL ITERATION TIME (from GMM Initialization):", time.time() - actual_start)
+	print("\n\n")
 	if np.array_equal(old_clustered_points,clustered_points):
-		print "\n\n\n\nCONVERGED!!! BREAKING EARLY!!!"
+		print("\n\n\n\nCONVERGED!!! BREAKING EARLY!!!")
 		break
 	old_clustered_points = clustered_points
 

@@ -40,7 +40,7 @@ S = np.linalg.inv(S_inv)
 
 
 
-print S, "= S"
+print(S, "= S")
 
 
 #COPY THIS CODE
@@ -58,6 +58,6 @@ val = gvx.GetNodeValue(0,'theta')
 S_est = upper2Full(val, 1e-5)
 
 np.set_printoptions(precision=4, suppress=True)
-print np.linalg.inv(S)
+print(np.linalg.inv(S))
 
-print S_est
+print(S_est)

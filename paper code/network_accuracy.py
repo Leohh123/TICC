@@ -51,14 +51,14 @@ hexadecimal_color_list = ["cc0000","0000ff","003300","33ff00","00ffcc","ffff00",
 str_NULL = prefix_string
 
 
-print "lam_sparse", lam_sparse
-print "switch_penalty", switch_penalty
-print "num_cluster", maxClusters - 1
-print "num stacked", num_stacked
+print("lam_sparse", lam_sparse)
+print("switch_penalty", switch_penalty)
+print("num_cluster", maxClusters - 1)
+print("num stacked", num_stacked)
 
 Data = np.loadtxt(input_file, delimiter= ",")
 
-print "completed getting the data"
+print("completed getting the data")
 Data_pre = Data
 UNNORMALIZED_Data = Data*1000
 (m,n) = Data.shape
@@ -93,12 +93,12 @@ def updateClusters(LLE_node_vals,switch_penalty = 1):
 	(T,num_clusters) = LLE_node_vals.shape
 	future_cost_vals = np.zeros(LLE_node_vals.shape)
 	##compute future costs
-	for i in xrange(T-2,-1,-1):
+	for i in range(T-2,-1,-1):
 		j = i+1
 		indicator = np.zeros(num_clusters)
 		future_costs = future_cost_vals[j,:]
 		lle_vals = LLE_node_vals[j,:]
-		for cluster in xrange(num_clusters):
+		for cluster in range(num_clusters):
 			total_vals = future_costs + lle_vals + switch_penalty
 			total_vals[cluster] -= switch_penalty
 			future_cost_vals[i,cluster] = np.min(total_vals)
@@ -110,7 +110,7 @@ def updateClusters(LLE_node_vals,switch_penalty = 1):
 	path[0] = curr_location
 
 	##compute the path
-	for i in xrange(T-1):
+	for i in range(T-1):
 		j = i+1
 		future_costs = future_cost_vals[j,:]
 		lle_vals = LLE_node_vals[j,:]
@@ -128,10 +128,10 @@ def find_matching(confusion_matrix):
 	"""
 	_,n = confusion_matrix.shape
 	path = []
-	for i in xrange(n):
+	for i in range(n):
 		max_val = -1e10
 		max_ind = -1
-		for j in xrange(n):
+		for j in range(n):
 			if j in path:
 				pass
 			else:
@@ -147,7 +147,7 @@ def computeF1Score_delete(num_cluster,matching_algo,actual_clusters,threshold_al
 	computes the F1 scores and returns a list of values
 	"""
 	F1_score = np.zeros(num_cluster)
-	for cluster in xrange(num_cluster):
+	for cluster in range(num_cluster):
 		matched_cluster = matching_algo[cluster]
 		true_matrix = actual_clusters[cluster]
 		estimated_matrix = threshold_algo[matched_cluster]
@@ -156,8 +156,8 @@ def computeF1Score_delete(num_cluster,matching_algo,actual_clusters,threshold_al
 		TN = 0
 		FP = 0
 		FN = 0
-		for i in xrange(num_stacked*n):
-			for j in xrange(num_stacked*n):
+		for i in range(num_stacked*n):
+			for j in range(num_stacked*n):
 				if estimated_matrix[i,j] == 1 and true_matrix[i,j] != 0:
 					TP += 1.0
 				elif estimated_matrix[i,j] == 0 and true_matrix[i,j] == 0:
@@ -178,7 +178,7 @@ def compute_confusion_matrix(num_clusters,clustered_points_algo, sorted_indices_
 	"""
 	seg_len = 200
 	true_confusion_matrix = np.zeros([num_clusters,num_clusters])
-	for point in xrange(len(clustered_points_algo)):
+	for point in range(len(clustered_points_algo)):
 		cluster = int(clustered_points_algo[point])
 
 
@@ -237,21 +237,21 @@ def computeF1_macro(confusion_matrix,matching, num_clusters):
 	"""
 	##Permute the matrix columns
 	permuted_confusion_matrix = np.zeros([num_clusters,num_clusters])
-	for cluster in xrange(num_clusters):
+	for cluster in range(num_clusters):
 		matched_cluster = matching[cluster]
- 		permuted_confusion_matrix[:,cluster] = confusion_matrix[:,matched_cluster]
- 	##Compute the F1 score for every cluster
- 	F1_score = 0
- 	for cluster in xrange(num_clusters):
- 		TP = permuted_confusion_matrix[cluster,cluster]
- 		FP = np.sum(permuted_confusion_matrix[:,cluster]) - TP
- 		FN = np.sum(permuted_confusion_matrix[cluster,:]) - TP
- 		precision = TP/(TP + FP)
- 		recall = TP/(TP + FN)
- 		f1 = stats.hmean([precision,recall])
- 		F1_score += f1
- 	F1_score /= num_clusters
- 	return F1_score
+		permuted_confusion_matrix[:,cluster] = confusion_matrix[:,matched_cluster]
+	##Compute the F1 score for every cluster
+	F1_score = 0
+	for cluster in range(num_clusters):
+		TP = permuted_confusion_matrix[cluster,cluster]
+		FP = np.sum(permuted_confusion_matrix[:,cluster]) - TP
+		FN = np.sum(permuted_confusion_matrix[cluster,:]) - TP
+		precision = TP/(TP + FP)
+		recall = TP/(TP + FN)
+		f1 = stats.hmean([precision,recall])
+		F1_score += f1
+	F1_score /= num_clusters
+	return F1_score
 
 def computeNetworkAccuracy(matching,train_cluster_inverse, num_clusters):
 	"""
@@ -261,20 +261,20 @@ def computeNetworkAccuracy(matching,train_cluster_inverse, num_clusters):
 	"""
 	threshold = 1e-2
 	f1 = 0
-	for cluster in xrange(num_clusters):
+	for cluster in range(num_clusters):
 		true_cluster_cov = np.loadtxt("Inverse Covariance cluster ="+ str(cluster) +".csv", delimiter = ",")
 		matched_cluster = matching[cluster]
 		matched_cluster_cov = train_cluster_inverse[matched_cluster] 
 		(nrow,ncol) = true_cluster_cov.shape
 
 		out_true = np.zeros([nrow,ncol])
-		for i in xrange(nrow):
-			for j in xrange(ncol):
+		for i in range(nrow):
+			for j in range(ncol):
 				if np.abs(true_cluster_cov[i,j]) > threshold:
 					out_true[i,j] = 1
 		out_matched = np.zeros([nrow,ncol])
-		for i in xrange(nrow):
-			for j in xrange(ncol):
+		for i in range(nrow):
+			for j in range(ncol):
 				if np.abs(matched_cluster_cov[i,j]) > threshold:
 					out_matched[i,j] = 1
 		np.savetxt("Network_true_cluster=" +str(cluster) + ".csv",true_cluster_cov, delimiter = ",")
@@ -283,8 +283,8 @@ def computeNetworkAccuracy(matching,train_cluster_inverse, num_clusters):
 
 		##compute the confusion matrix
 		confusion_matrix = np.zeros([2,2])
-		for i in xrange(nrow):
-			for j in xrange(ncol):
+		for i in range(nrow):
+			for j in range(ncol):
 				confusion_matrix[out_true[i,j],out_matched[i,j]] += 1
 		f1 += computeF1_macro(confusion_matrix, [0,1],2)
 	return f1/num_clusters
@@ -321,8 +321,8 @@ computed_covariance = {}
 cluster_mean_info = {}
 cluster_mean_stacked_info = {}
 old_clustered_points = np.zeros(10)
-for iters in xrange(maxIters):
-	print "\n\n\nITERATION ###", iters
+for iters in range(maxIters):
+	print("\n\n\nITERATION ###", iters)
 	num_clusters = maxClusters - 1
 
 	if iters == 0:
@@ -343,7 +343,7 @@ for iters in xrange(maxIters):
 		num_test_points = m - len(training_idx)
 		test_idx = []
 		##compute the test indices
-		for point in xrange(m-num_stacked+1):
+		for point in range(m-num_stacked+1):
 			if point not in sorted_training_idx:
 				test_idx.append(point)
 		sorted_test_idx = sorted(test_idx)
@@ -353,9 +353,9 @@ for iters in xrange(maxIters):
 		##Stack the complete data
 		complete_Data = np.zeros([m - num_stacked + 1, num_stacked*n])
 		len_data = m
-		for i in xrange(m - num_stacked + 1):
+		for i in range(m - num_stacked + 1):
 			idx = i
-			for k in xrange(num_stacked):
+			for k in range(num_stacked):
 				if i+k < len_data:
 					idx_k = i + k
 					complete_Data[i][k*n:(k+1)*n] =  Data[idx_k][0:n]
@@ -364,9 +364,9 @@ for iters in xrange(maxIters):
 		##Stack the training data
 		complete_D_train = np.zeros([len(training_idx), num_stacked*n])
 		len_training = len(training_idx)
-		for i in xrange(len(sorted_training_idx)):
+		for i in range(len(sorted_training_idx)):
 			idx = sorted_training_idx[i]
-			for k in xrange(num_stacked):
+			for k in range(num_stacked):
 				if i+k < len_training:
 					idx_k = sorted_training_idx[i+k]
 					complete_D_train[i][k*n:(k+1)*n] =  Data[idx_k][0:n]
@@ -375,7 +375,7 @@ for iters in xrange(maxIters):
 		complete_D_test = np.zeros([len(test_idx), num_stacked*n])
 		len_test = len(test_idx)
 
-		for i in xrange(len(sorted_test_idx)):
+		for i in range(len(sorted_test_idx)):
 			idx = sorted_test_idx[i]
 			idx_left = idx -1 
 			while idx_left not in sorted_training_idx:
@@ -426,7 +426,7 @@ for iters in xrange(maxIters):
 
 	##train_clusters holds the indices in complete_D_train 
 	##for each of the clusters
-	for cluster in xrange(num_clusters):
+	for cluster in range(num_clusters):
 		if len_train_clusters[cluster] != 0:
 			indices = train_clusters[cluster]
 			indices_test = test_clusters[cluster]
@@ -434,22 +434,22 @@ for iters in xrange(maxIters):
 
 
 			D_train = np.zeros([len_train_clusters[cluster],num_stacked*n])
-			for i in xrange(len_train_clusters[cluster]):
+			for i in range(len_train_clusters[cluster]):
 				point = indices[i]
 				D_train[i,:] = complete_D_train[point,:]
 
 			D_test = np.zeros([len_test_clusters[cluster], num_stacked*n])
-			for i in xrange(len_test_clusters[cluster]):
+			for i in range(len_test_clusters[cluster]):
 				point = indices_test[i]
 				D_test[i,:] = complete_D_test[point,:]
-			print "stacking Cluster #", cluster,"DONE!!!"
+			print("stacking Cluster #", cluster,"DONE!!!")
 			##Fit a model - OPTIMIZATION	
 			size_blocks = n
 			probSize = num_stacked * size_blocks
 			lamb = np.zeros((probSize,probSize)) + lam_sparse
 			S = np.cov(np.transpose(D_train) )
 
-			print "starting the OPTIMIZATION"
+			print("starting the OPTIMIZATION")
 			#Set up the Toeplitz graphical lasso problem
 			gvx = TGraphVX()
 			theta = semidefinite(probSize,name='theta')
@@ -480,18 +480,18 @@ for iters in xrange(maxIters):
 
 	cluster_norms = list(np.zeros(num_clusters))
 
-	# for cluster in xrange(num_clusters):
+	# for cluster in range(num_clusters):
 	# 	print "length of the cluster ", cluster,"------>", len_train_clusters[cluster]
 	##Computing the norms
 	if iters != 0:
-		for cluster in xrange(num_clusters):
+		for cluster in range(num_clusters):
 			cluster_norms[cluster] = (np.linalg.norm(old_computed_covariance[num_clusters,cluster]),cluster)
 		sorted_cluster_norms = sorted(cluster_norms,reverse = True)
 
 	##Add a point to the empty clusters 
 	##Assumption more non empty clusters than empty ones
 	counter = 0
-	for cluster in xrange(num_clusters):
+	for cluster in range(num_clusters):
 		if len_train_clusters[cluster] == 0:
 			##Add a point to the cluster
 			while len_train_clusters[sorted_cluster_norms[counter][1]] == 0:
@@ -520,13 +520,13 @@ for iters in xrange(maxIters):
 
 	##Code -----------------------SMOOTHENING
 	##For each point compute the LLE 
-	print "beginning with the DP - smoothening ALGORITHM"
+	print("beginning with the DP - smoothening ALGORITHM")
 
 	LLE_all_points_clusters = np.zeros([len(clustered_points),num_clusters])
-	for point in xrange(len(clustered_points)):
+	for point in range(len(clustered_points)):
 		# print "Point #", point
 		if point + num_stacked-1 < complete_D_train.shape[0]:
-			for cluster in xrange(num_clusters):
+			for cluster in range(num_clusters):
 				# print "\nCLuster#", cluster
 				cluster_mean = cluster_mean_info[num_clusters,cluster] 
 				cluster_mean_stacked = cluster_mean_stacked_info[num_clusters,cluster] 
@@ -540,10 +540,10 @@ for iters in xrange(maxIters):
 	
 	##Update cluster points - using dynamic programming smoothening
 	clustered_points = updateClusters(LLE_all_points_clusters,switch_penalty = switch_penalty)
-	print "\ncompleted smoothening algorithm"
-	print "\n\nprinting the length of points in each cluster"
-	for cluster in xrange(num_clusters):
-		print "length of cluster #", cluster, "-------->", sum([x== cluster for x in clustered_points])
+	print("\ncompleted smoothening algorithm")
+	print("\n\nprinting the length of points in each cluster")
+	for cluster in range(num_clusters):
+		print("length of cluster #", cluster, "-------->", sum([x== cluster for x in clustered_points]))
 	true_confusion_matrix = np.zeros([num_clusters,num_clusters])
 
 	##Save a figure of segmentation
@@ -571,7 +571,7 @@ for iters in xrange(maxIters):
 	### The closest point in training set is the cluster
 	### LLE + swtiching_penalty
 	clustered_test = np.zeros(len(clustered_points_test))
-	for point in xrange(len(clustered_points_test)):
+	for point in range(len(clustered_points_test)):
 		idx = sorted_test_idx[point]
 		##Get the 2 closest points from training
 		idx1 = idx + 1
@@ -581,11 +581,11 @@ for iters in xrange(maxIters):
 		while (idx2 not in sorted_training_idx and idx2 > -1):
 			idx2 -= 1
 		if idx1 == m or idx2 == -1:
-			print "idx1 :", idx1 == m
-			print "idx2 :", idx2 == -1
-			print "point is:", point
-			print "idx of the point is:", idx
-			print "control should NOT reach here!!!!!!!"
+			print("idx1 :", idx1 == m)
+			print("idx2 :", idx2 == -1)
+			print("point is:", point)
+			print("idx of the point is:", idx)
+			print("control should NOT reach here!!!!!!!")
 			break
 		vals = np.zeros(num_clusters)
 		right_clust = clustered_points[sorted_training_idx.index(idx1)]
@@ -594,7 +594,7 @@ for iters in xrange(maxIters):
 		data_tt = complete_D_train[point_tr,:]
 		data_tt[0:n] = Data[idx,:]#complete_D_test[point,0:num_stacked] 
 
-		for cluster in xrange(num_clusters):
+		for cluster in range(num_clusters):
 			cluster_mean = cluster_mean_info[num_clusters,cluster] 
 			cluster_mean_stacked = cluster_mean_stacked_info[num_clusters,cluster] 
 
@@ -617,7 +617,7 @@ for iters in xrange(maxIters):
 
 	##GMM - TEST PREDICTIONS
 	clustered_test_gmm = np.zeros(len(clustered_points_test))
-	for point in xrange(len(clustered_points_test)):
+	for point in range(len(clustered_points_test)):
 		idx = sorted_test_idx[point]
 		##Get the 2 closest points from training
 		idx1 = idx + 1
@@ -627,12 +627,12 @@ for iters in xrange(maxIters):
 		while (idx2 not in sorted_training_idx and idx2 > -1):
 			idx2 -= 1
 		if idx1 == m or idx2 == -1:
-			print "idx1 :", idx1 == m
-			print "idx2 :", idx2 == -1
-			print "point is:", point
-			print "idx of the point is:", idx
+			print("idx1 :", idx1 == m)
+			print("idx2 :", idx2 == -1)
+			print("point is:", point)
+			print("idx of the point is:", idx)
 
-			print "SOMETHING WRONG!!!!!!!"
+			print("SOMETHING WRONG!!!!!!!")
 			break
 		vals = np.zeros(num_clusters)
 		right_clust = gmm_clustered_pts[sorted_training_idx.index(idx1)]
@@ -641,7 +641,7 @@ for iters in xrange(maxIters):
 		data_tt = complete_D_train[point_tr,:]
 		data_tt[0:n] = Data[idx,:]#complete_D_test[point,0:num_stacked] 
 
-		for cluster in xrange(num_clusters):
+		for cluster in range(num_clusters):
 			cluster_mean_stacked = gmm_means[cluster] 
 
 			x = data_tt - cluster_mean_stacked[0:(num_blocks-1)*n]
@@ -675,7 +675,7 @@ for iters in xrange(maxIters):
 
 
 	true_answers = np.zeros(len(clustered_points))
-	for point in xrange(len(clustered_points)):
+	for point in range(len(clustered_points)):
 		num = int(sorted_training_idx[point]/25.0)
 		if num <10 :
 			cluster = 0
@@ -713,13 +713,13 @@ for iters in xrange(maxIters):
 	train_inverse_covariance_gmm = {}
 
 	counter = 0
-	for cluster in xrange(num_clusters):
+	for cluster in range(num_clusters):
 		##GMM
 		out = [(x == cluster) for x in gmm_clustered_pts]
 		len_cluster = sum(out)
 		D_train = np.zeros([len_cluster,num_stacked*n])
 		counter = 0
-		for point in xrange(len(gmm_clustered_pts)):
+		for point in range(len(gmm_clustered_pts)):
 			if gmm_clustered_pts[point] == cluster:
 				D_train[counter,:] = complete_D_train[point,:]
 				counter += 1
@@ -731,7 +731,7 @@ for iters in xrange(maxIters):
 		len_cluster = sum(out)
 		D_train = np.zeros([len_cluster,num_stacked*n])
 		counter2 = 0
-		for point in xrange(len(clustered_points_kmeans)):
+		for point in range(len(clustered_points_kmeans)):
 			if clustered_points_kmeans[point] == cluster:
 				D_train[counter2,:] = complete_D_train[point,:]
 				counter2 += 1
@@ -748,31 +748,31 @@ for iters in xrange(maxIters):
 
 	##Change this to add thresholding function
 	##Kmeans - thresholding
-	for cluster in xrange(num_clusters):
-	    out = np.zeros(train_inverse_covariance_kmeans[0].shape, dtype = np.int)
-	    A = train_inverse_covariance_kmeans[cluster]
-	    for i in xrange(out.shape[0]):
-	        for j in xrange(out.shape[1]):
+	for cluster in range(num_clusters):
+		out = np.zeros(train_inverse_covariance_kmeans[0].shape, dtype = np.int)
+		A = train_inverse_covariance_kmeans[cluster]
+		for i in range(out.shape[0]):
+			for j in range(out.shape[1]):
 				if (np.abs(A[i,j]) > threshold):
 					out[i,j] = 1
 		threshold_kmeans[cluster] = out
 
 	##GMM - thresholding
-	for cluster in xrange(num_clusters):
+	for cluster in range(num_clusters):
 		out = np.zeros(train_inverse_covariance_gmm[0].shape, dtype = np.int)
 		A = train_inverse_covariance_gmm[cluster]
-		for i in xrange(out.shape[0]):
-			for j in xrange(out.shape[1]):
+		for i in range(out.shape[0]):
+			for j in range(out.shape[1]):
 				if np.abs(A[i,j]) > threshold:
 					out[i,j] = 1
 		threshold_GMM[cluster] = out
 
     ## EM - thresholding
-	for cluster in xrange(num_clusters):
+	for cluster in range(num_clusters):
 		out = np.zeros(train_inverse_covariance_gmm[0].shape, dtype = np.int)
 		A = train_cluster_inverse[cluster]
-		for i in xrange(out.shape[0]):
-			for j in xrange(out.shape[1]):
+		for i in range(out.shape[0]):
+			for j in range(out.shape[1]):
 				if np.abs(A[i,j]) > threshold:
 					out[i,j] = 1
 		threshold_EM[cluster] = out
@@ -780,7 +780,7 @@ for iters in xrange(maxIters):
     ##compute the matching
     ##Assume its a 2x2 matrix?
 	actual_clusters = {}
-	for cluster in xrange(num_clusters):
+	for cluster in range(num_clusters):
 		actual_clusters[cluster] = np.loadtxt("Inverse Covariance cluster =" + str(cluster)+".csv", delimiter = ",")
 
     ##compute the appropriate matching
@@ -791,7 +791,7 @@ for iters in xrange(maxIters):
 	correct_EM = 0
 	correct_GMM = 0
 	correct_KMeans = 0
-	for cluster in xrange(num_clusters):
+	for cluster in range(num_clusters):
 		matched_cluster_EM = matching_EM[cluster]
 		matched_cluster_GMM = matching_GMM[cluster]
 		matched_cluster_Kmeans = matching_Kmeans[cluster]
@@ -818,12 +818,12 @@ for iters in xrange(maxIters):
 	# print "matching ", matching_EM
 
 
-	print "\n\n\n"
+	print("\n\n\n")
 	# print "The F1 scores is:", F1_EM,F1_GMM, F1_Kmeans
 	# print "The binary accuracy", binary_EM, binary_GMM, binary_Kmeans
 
 	if np.array_equal(old_clustered_points,clustered_points):
-		print "\n\n\n\nCONVERGED!!! BREAKING EARLY!!!"
+		print("\n\n\n\nCONVERGED!!! BREAKING EARLY!!!")
 		break
 	old_clustered_points = clustered_points
 
@@ -835,7 +835,7 @@ test_confusion_matrix_EM = compute_confusion_matrix(num_clusters,clustered_test,
 
 out = computeNetworkAccuracy(matching_EM, train_cluster_inverse,num_clusters)
 
-print "the network accuracy F1 score is:", out
+print("the network accuracy F1 score is:", out)
 
 
 f1_EM_tr = computeF1_macro(train_confusion_matrix_EM,matching_EM,num_clusters)
@@ -849,7 +849,7 @@ f1_EM_test = computeF1_macro(test_confusion_matrix_EM,matching_EM,num_clusters)
 correct_EM = 0
 correct_GMM = 0
 correct_KMeans = 0
-for cluster in xrange(num_clusters):
+for cluster in range(num_clusters):
 	matched_cluster_EM = matching_EM[cluster]
 	matched_cluster_GMM = matching_GMM[cluster]
 	matched_cluster_Kmeans = matching_Kmeans[cluster]
@@ -861,8 +861,8 @@ binary_EM = correct_EM/len(training_idx)
 binary_GMM = correct_GMM/len(training_idx)
 binary_Kmeans = correct_KMeans/len(training_idx)
 
-print "\n\n"
-print "\n\n\n"
+print("\n\n")
+print("\n\n\n")
 # print "The TRAINING binary accuracy", binary_EM, binary_GMM, binary_Kmeans
 # print "lam_sparse", lam_sparse
 # print "switch_penalty", switch_penalty
