@@ -3,7 +3,9 @@
 
 .idea/
 
-Results.txt
+*.out
 
 __pycache__
 /output_folder/
+/out/
+/data/
