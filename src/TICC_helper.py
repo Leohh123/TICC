@@ -1,4 +1,5 @@
 import numpy as np
+from scipy import stats
 
 
 def getTrainTestSplit(m, num_blocks, num_stacked):
@@ -109,38 +110,38 @@ def find_matching(confusion_matrix):
     return path
 
 
-def computeF1Score_delete(num_cluster, matching_algo, actual_clusters, threshold_algo, save_matrix=False):
-    """
-    computes the F1 scores and returns a list of values
-    """
-    F1_score = np.zeros(num_cluster)
-    for cluster in range(num_cluster):
-        matched_cluster = matching_algo[cluster]
-        true_matrix = actual_clusters[cluster]
-        estimated_matrix = threshold_algo[matched_cluster]
-        if save_matrix: np.savetxt("estimated_matrix_cluster=" + str(
-            cluster)+".csv", estimated_matrix, delimiter=",", fmt="%1.4f")
-        TP = 0
-        TN = 0
-        FP = 0
-        FN = 0
-        for i in range(num_stacked*n):
-            for j in range(num_stacked*n):
-                if estimated_matrix[i, j] == 1 and true_matrix[i, j] != 0:
-                    TP += 1.0
-                elif estimated_matrix[i, j] == 0 and true_matrix[i, j] == 0:
-                    TN += 1.0
-                elif estimated_matrix[i, j] == 1 and true_matrix[i, j] == 0:
-                    FP += 1.0
-                else:
-                    FN += 1.0
-        precision = (TP)/(TP + FP)
-        print("cluster #", cluster)
-        print("TP,TN,FP,FN---------->", (TP, TN, FP, FN))
-        recall = TP/(TP + FN)
-        f1 = (2*precision*recall)/(precision + recall)
-        F1_score[cluster] = f1
-    return F1_score
+# def computeF1Score_delete(num_cluster, matching_algo, actual_clusters, threshold_algo, save_matrix=False):
+#     """
+#     computes the F1 scores and returns a list of values
+#     """
+#     F1_score = np.zeros(num_cluster)
+#     for cluster in range(num_cluster):
+#         matched_cluster = matching_algo[cluster]
+#         true_matrix = actual_clusters[cluster]
+#         estimated_matrix = threshold_algo[matched_cluster]
+#         if save_matrix: np.savetxt("estimated_matrix_cluster=" + str(
+#             cluster)+".csv", estimated_matrix, delimiter=",", fmt="%1.4f")
+#         TP = 0
+#         TN = 0
+#         FP = 0
+#         FN = 0
+#         for i in range(num_stacked*n):
+#             for j in range(num_stacked*n):
+#                 if estimated_matrix[i, j] == 1 and true_matrix[i, j] != 0:
+#                     TP += 1.0
+#                 elif estimated_matrix[i, j] == 0 and true_matrix[i, j] == 0:
+#                     TN += 1.0
+#                 elif estimated_matrix[i, j] == 1 and true_matrix[i, j] == 0:
+#                     FP += 1.0
+#                 else:
+#                     FN += 1.0
+#         precision = (TP)/(TP + FP)
+#         print("cluster #", cluster)
+#         print("TP,TN,FP,FN---------->", (TP, TN, FP, FN))
+#         recall = TP/(TP + FN)
+#         f1 = (2*precision*recall)/(precision + recall)
+#         F1_score[cluster] = f1
+#     return F1_score
 
 
 def compute_confusion_matrix(num_clusters, clustered_points_algo, sorted_indices_algo):

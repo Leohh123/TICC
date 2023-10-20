@@ -61,7 +61,7 @@ class TICC:
 
         ############
         # The basic folder to be created
-        str_NULL = self.prepare_out_directory()
+        # str_NULL = self.prepare_out_directory()
 
         # Train test split
         training_indices = getTrainTestSplit(time_series_rows_size, self.num_blocks,
@@ -169,7 +169,7 @@ class TICC:
             for cluster_num in range(self.number_of_clusters):
                 print("length of cluster #", cluster_num, "-------->", sum([x == cluster_num for x in clustered_points]))
 
-            self.write_plot(clustered_points, str_NULL, training_indices)
+            self.write_plot(clustered_points, training_indices)
 
             # TEST SETS STUFF
             # LLE + swtiching_penalty
@@ -206,6 +206,7 @@ class TICC:
 
         self.compute_f_score(matching_EM, matching_GMM, matching_Kmeans, train_confusion_matrix_EM,
                              train_confusion_matrix_GMM, train_confusion_matrix_kmeans)
+        # print('EM_conf_mat', train_confusion_matrix_EM)
 
         if self.compute_BIC:
             bic = computeBIC(self.number_of_clusters, time_series_rows_size, clustered_points, train_cluster_inverse,
@@ -216,9 +217,9 @@ class TICC:
 
     def compute_f_score(self, matching_EM, matching_GMM, matching_Kmeans, train_confusion_matrix_EM,
                         train_confusion_matrix_GMM, train_confusion_matrix_kmeans):
-        f1_EM_tr = -1  # computeF1_macro(train_confusion_matrix_EM,matching_EM,num_clusters)
-        f1_GMM_tr = -1  # computeF1_macro(train_confusion_matrix_GMM,matching_GMM,num_clusters)
-        f1_kmeans_tr = -1  # computeF1_macro(train_confusion_matrix_kmeans,matching_Kmeans,num_clusters)
+        f1_EM_tr = computeF1_macro(train_confusion_matrix_EM,matching_EM,self.number_of_clusters)
+        f1_GMM_tr = computeF1_macro(train_confusion_matrix_GMM,matching_GMM,self.number_of_clusters)
+        f1_kmeans_tr = computeF1_macro(train_confusion_matrix_kmeans,matching_Kmeans,self.number_of_clusters)
         print("\n\n")
         print("TRAINING F1 score:", f1_EM_tr, f1_GMM_tr, f1_kmeans_tr)
         correct_e_m = 0
@@ -250,14 +251,14 @@ class TICC:
             correct_k_means += train_confusion_matrix_kmeans[cluster, matched_cluster_k_means]
         return matching_EM, matching_GMM, matching_Kmeans
 
-    def write_plot(self, clustered_points, str_NULL, training_indices):
+    def write_plot(self, clustered_points, training_indices):
         # Save a figure of segmentation
         plt.figure()
-        plt.plot(training_indices[0:len(clustered_points)], clustered_points, color="r")  # ,marker = ".",s =100)
+        plt.scatter(training_indices[0:len(clustered_points)], clustered_points, marker='.')  # ,marker = ".",s =100)
         plt.ylim((-0.5, self.number_of_clusters + 0.5))
-        if self.write_out_file: plt.savefig(
-            str_NULL + "TRAINING_EM_lam_sparse=" + str(self.lambda_parameter) + "switch_penalty = " + str(
-                self.switch_penalty) + ".jpg")
+        filename = "TRAINING_EM_lam_sparse=" + str(self.lambda_parameter) + "switch_penalty = " + str(self.switch_penalty) + ".jpg"
+        if self.write_out_file:
+            plt.savefig(os.path.join(self.prefix_string, filename))
         plt.close("all")
         print("Done writing the figure")
 
@@ -348,17 +349,17 @@ class TICC:
                     complete_D_train[i][k * n:(k + 1) * n] = Data[idx_k][0:n]
         return complete_D_train
 
-    def prepare_out_directory(self):
-        str_NULL = self.prefix_string + "lam_sparse=" + str(self.lambda_parameter) + "maxClusters=" + str(
-            self.number_of_clusters + 1) + "/"
-        if not os.path.exists(os.path.dirname(str_NULL)):
-            try:
-                os.makedirs(os.path.dirname(str_NULL))
-            except OSError as exc:  # Guard against race condition of path already existing
-                if exc.errno != errno.EEXIST:
-                    raise
+    # def prepare_out_directory(self):
+    #     str_NULL = self.prefix_string + "lam_sparse=" + str(self.lambda_parameter) + "maxClusters=" + str(
+    #         self.number_of_clusters + 1) + "/"
+    #     if not os.path.exists(os.path.dirname(str_NULL)):
+    #         try:
+    #             os.makedirs(os.path.dirname(str_NULL))
+    #         except OSError as exc:  # Guard against race condition of path already existing
+    #             if exc.errno != errno.EEXIST:
+    #                 raise
 
-        return str_NULL
+    #     return str_NULL
 
     def load_data(self, input_file):
         Data = np.loadtxt(input_file, delimiter=",")

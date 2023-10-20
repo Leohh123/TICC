@@ -1,17 +1,43 @@
 import numpy as np
 from snap import *
+import argparse
+from datetime import datetime
+
+
+def get_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--window-size', '-w', dest='window_size', metavar='W',
+                        type=int, default=5, help='window size')
+    parser.add_argument('--variables', '-v', dest='variables', metavar='V',
+                        type=int, default=5, help='number of variables')
+    parser.add_argument('--cluster-list', '-cl', dest='cluster_list', metavar='CL', nargs='+',
+                        type=int, required=True, help='list of cluster IDs for each segment')
+    parser.add_argument('--segment-samples', '-ss', dest='segment_samples', metavar='SS',
+                        type=int, default=200, help='number of samples per segment')
+    parser.add_argument('--sparsity', '-sp', dest='sparsity', metavar='SP',
+                        type=float, default=0.2, help='probability of creating an edge between two variables')
+    parser.add_argument('--seed', '-sd', dest='seed', metavar='SD',
+                        type=int, default=10, help='random seed')
+    parser.add_argument('--data_dir', '-dd', dest='data_dir', metavar='DD',
+                        type=str, default='./data', help='directory for generating data')
+    return parser.parse_args()
+
+
+args = get_args()
 
 ##Parameters to play with
 
-window_size = 5
-number_of_sensors = 5
-sparsity_inv_matrix = 0.2
-rand_seed = 10
-number_of_clusters = 3
-cluster_ids = [0,1,0]
-break_points = np.array([1,2,3])*200
+window_size = args.window_size
+number_of_sensors = args.variables
+sparsity_inv_matrix = args.sparsity
+rand_seed = args.seed
+number_of_clusters = len(set(args.cluster_list))
+cluster_ids = args.cluster_list
+break_points = (np.arange(len(args.cluster_list)) + 1) * args.segment_samples
 save_inverse_covarainces = True
-out_file_name = "Synthetic Data Matrix rand_seed =[0,1] generated2.csv"
+data_id = datetime.now().strftime('%m%d%H%M') + \
+    f'_w={args.window_size}&v={args.variables}&' \
+    f'cl={",".join(map(str, args.cluster_list))}&ss={args.segment_samples}&sp={args.sparsity}'
 ###########################################################
 
 
@@ -25,7 +51,7 @@ block_matrices = {} ##Stores all the block matrices
 seg_ids = cluster_ids
 
 def generate_inverse(rand_seed):
-	np.random.seed(rand_seed)
+	np.random.seed(rand_seed + args.seed)
 	def genInvCov(size, low = 0.3 , upper = 0.6, portion = 0.2,symmetric = True):
 		portion = portion/2
 		S = np.zeros((size,size))
@@ -98,8 +124,8 @@ for cluster in range(num_clusters):
 	cluster_inverses[cluster] = generate_inverse(rand_seed = cluster)
 	cluster_covariances[cluster] = np.linalg.inv(cluster_inverses[cluster])
 	if save_inverse_covarainces:
-		np.savetxt("Inverse Covariance cluster ="+ str(cluster) +".csv", cluster_inverses[cluster],delimiter= ",",fmt='%1.6f')
-		np.savetxt("Covariance cluster ="+ str(cluster) +".csv", cluster_covariances[cluster],delimiter= ",",fmt='%1.6f')
+		np.savetxt(f"./data/{data_id}_cluster{cluster}_inv.csv", cluster_inverses[cluster],delimiter= ",",fmt='%1.6f')
+		np.savetxt(f"./data/{data_id}_cluster{cluster}_cov.csv", cluster_covariances[cluster],delimiter= ",",fmt='%1.6f')
 
 print("dont till this!!")
 
@@ -199,7 +225,7 @@ print("done with generating the data!!!")
 print("length of generated Data is:", Data.shape[0])
 
 ##save the generated matrix
-np.savetxt(out_file_name, Data, delimiter=",", fmt='%1.4f')
+np.savetxt(f'./data/{data_id}_seq.csv', Data, delimiter=",", fmt='%1.4f')
 
 
 
